@@ -10,8 +10,9 @@ module crossections
 	!                         energy
 	! S U B R O U T I N E S
 	! 
-	! cs_init(filename) - initializes crossection data. filename - a name of textfile
+	! cs_init(filename, error) - initializes crossection data. filename - a name of textfile
 	!                     which contains descriprion of files with crossection data
+	!                     error - error code: 0 - no error
 	! cs_destroy() - deallocates all dynamic crossection data. 
     implicit none 
 	
@@ -40,14 +41,74 @@ module crossections
 	
     contains
 	
-	    ! filename file format:
-		!
-	    subroutine cs_init(filename)
+	    ! filename file format (this is testfile):
+		! first line:
+		! NR - Total number of reactions (integer)
+		! followed by NR lines of format
+		! M1 M2 QI QM 
+		! CS_FILENAME 
+		! ANG_FILENAME
+		! where M1, M2 - product masses in u (atomic mass unit)
+		!       QI, QM - reaction energy
+		!       CS_FILENAME - name of file with crossection data (80 symbols max)
+		!       CS_ANG_FILENAME - name of file with angular disttribution data (80 symbols max)
+	    subroutine cs_init(filename, error)
 		    character(len = *), intent(in) :: filename
+			integer, intent(out) :: error ! error code. 0 - if no error
 			
-			integer(4) :: i, j, Nreact
+			integer(4) :: i, NR, err2
+			character(len = 80) :: cs_file, ang_file
 			
+			error = 0			
+			open(11, file = filename, form = 'FORMATTED', action = 'READ')
+			read(11, *) NR
+			allocate(E(NR), EA(NR), CS(NR), QI(NR), QM(NR), M1(NR), M2(NR), A(NR))
+			do i = 1, NR
+			    read(11, *) M1(i), M2(i), QI(i), QM(i)
+				read(11, *) cs_file
+				call read_cs(cs_file, i, err2)
+				read(11, *) ang_file
+				call read_ang(ang_file, i, err2)
+			end do
+			close(11)
 		end subroutine cs_init
+		
+		subroutine read_cs(filename, react, error)  ! read crossections from binary file for reaction react
+		    character(len = *), intent(in) :: filename
+			integer, intent(in)  :: react
+			integer, intent(out) :: error
+			
+			integer :: N, i
+			
+			error = 0
+			open(12, file = filename, form = 'UNFORMATTED', action = 'READ')
+			read(12) N
+			E(react) % N = N
+			CS(react) % N = N
+			allocate(E(react) % V(N), CS(react) % V(N))
+			read(12) E(react) % V
+            read(12) CS(react) % V
+			close(12)
+		end subroutine read_cs
+		
+		subroutine read_ang(filename, react, error) ! read angular distribution coefficients from binary file for reaction react
+		    character(len = *), intent(in) :: filename
+			integer, intent(in)  :: react
+			integer, intent(out) :: error
+			
+			integer :: NX, NY, i
+			
+			error = 0
+			open(12, file = filename, form = 'UNFORMATTED', action = 'READ')
+			read(12) NX, NY
+			EA(react) % N = NX
+			A(react) % NX = NX
+			A(react) % NY = NY
+			allocate(EA(react) % V(NX), A(react) % V(NX, NY))
+			read(12) EA(react) % V
+			read(12) A(react) % V
+			close(12)
+		end subroutine read_ang
 		
 		subroutine cs_destroy()
 		
@@ -61,7 +122,7 @@ module crossections
 		end subroutine
 	    
 	    function getcs(cskind, energy)  ! linear interpolation used here
-		    integer(4), intent(in) :: cskind   ! If energy lies outside avaible crossection data range 0.0 is returned
+		    integer(4), intent(in) :: cskind   ! If energy lies outside avaible crossection data range 0.0 value is returned
 			real(8),    intent(in) :: energy
 			real(8) :: getcs
 			
