@@ -17,7 +17,7 @@ module crossections
     implicit none 
 	
     private
-	public  :: cs_init, cs_destroy, getcs, getac, type(VECTOR)
+	public  :: cs_init, cs_destroy, getcs, getac, type(VECTOR), NReact, QI, QM, M1, M2
 	
 	type VECTOR
 	    integer :: N   ! Length of V
@@ -29,6 +29,7 @@ module crossections
 	    real(8), dimension(:, :), allocatable :: V
 	end type
 	
+	integer :: NReact ! reactions number
     type (VECTOR), dimension(:), allocatable :: CS, E, EA     ! E - array of reaction energies. EA - angular distribution energies
 	                                                          ! CS - crossections. Example:
 															  ! r - the number of reaction under consideration. Then
@@ -71,6 +72,7 @@ module crossections
 				call read_ang(ang_file, i, err2)
 			end do
 			close(11)
+			NReact = NR
 		end subroutine cs_init
 		
 		subroutine read_cs(filename, react, error)  ! read crossections from binary file for reaction react
