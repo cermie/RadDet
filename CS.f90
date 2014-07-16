@@ -1,5 +1,11 @@
 module crossections
-
+    ! This module downloads crossection data and operate it.
+	! 
+	! F U N C T I O N S
+	!
+	! getcs(cskind, energy) - returns crossection of reaction with index cskind
+	!                         at energy
+    !             	
     implicit none 
 	
     private
@@ -38,7 +44,7 @@ module crossections
 		    deallocate(E, CS, QI, QM, M1, M2, A, EA)
 		    
 		end subroutine
-	
+	    
 	    function getcs(cskind, energy)
 		    integer(4), intent(in) :: cskind
 			real(8),    intent(in) :: energy
