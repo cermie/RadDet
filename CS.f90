@@ -17,7 +17,7 @@ module crossections
     implicit none 
 	
     private
-	public  :: cs_init, cs_destroy, getcs, getac, type(VECTOR), NReact, QI, QM, M1, M2
+	public  :: cs_init, cs_destroy, getcs, getac, VECTOR, TABLE, NReact, QI, QM, M1, M2
 	
 	type VECTOR
 	    integer :: N   ! Length of V
