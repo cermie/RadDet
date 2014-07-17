@@ -115,6 +115,10 @@ module crossections
 		subroutine cs_destroy()
 		
 		    integer :: N, i
+			
+			if (.NOT. allocated(E%V)) then
+			    return
+			end if
 		    N = size(E)
 		    do i = 1, N
 		        deallocate(E(i) % V, CS(i) % V, EA(i) % V, A(i) % V)
