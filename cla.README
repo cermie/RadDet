@@ -1,0 +1,52 @@
+
+cla.f90:
+	A module for parsing command-line arguments in fortran-90.
+
+Features:
+	- Handles key/value pairs and flags in arbitrary order on the command line.
+	- Includes validation and error messages for invalid or ill-formed command 
+	  line arguments.
+	- Is aware of help flags (--help, etc) by default.
+	- Values passed as arguments can be character string, integer, real, or 
+	  boolean.
+	- Depends on kinds.f90 for specification of size of strings, integers, reals, 
+	  and pointers.
+	- Uses the F03 standard for accessing the command line arguments 
+	  (command_argument_count and get_command_argument).
+	- Tested with gfortran, ifort, and pgf90.
+	- See cla_test.f90 for an example of usage.
+
+Author:
+	Ed Zaron
+	Department of Civil and Environmental Engineering
+	Portland State University
+	ezaron@pdx.edu
+	(503) 725-2435
+	http://web.cecs.pdx.edu/~zaron/pub/CLA-F90.html
+	http://maki.cee.pdx.edu/~ezaron/CLAF90/claf90.tgz
+
+Acknowledgement:
+	This software was developed with support from the Naval Research
+	Laboratory (grant #N00173-08-2-C015) and NASA (grant #NNX13AH06G).
+
+-------------------------------------------------------------------------------
+
+Copyright (c) 2014 Portland State University
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.

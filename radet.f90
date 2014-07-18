@@ -2,32 +2,34 @@ program radet
 
 !    use kernel_prep
 !	use crossections, only : VECTOR
+    use cla
 	
 	implicit none
 	
 !	type (VECTOR) :: F, W
-	integer :: i, j
+    logical :: kflag
+	character(len = 80) :: csname
 	
-	call get_arguments()
+	call cla_init
+	call cla_register(key = '-k', description = 'download already generated kernel', &
+	     kkind = cla_flag, default = 'f')
+	call cla_register(key = '--cs', description = 'crossection data file', &
+	     kkind = cla_char, default = 'carbon.cs')
+	call cla_register(key = '--kernel', description = 'kernel data file', &
+	     kkind = cla_char, default = 'kernel.ker')
+		 
+	call cla_validate
+	
+	call cla_get('-k', kflag)
+	if (.NOT. kflag) then
+	    call cla_get('--cs', csname)
+		print *, csname
+	else
+	    call cla_get('--kernel', kername)
+		print *, kername
+	end if
 
 contains
 
-	subroutine get_arguments()
-	    integer :: N, i = 1, LENGTH, STATS
-		character(len = 32) :: AVAL
-		
-		N = command_argument_count()
-		do while (i <= N)
-		    call get_command_argument(i, AVAL, LENGTH, STATS)
-			if (STATS == -1) then
-			    print *, "Command Line argument ", i, " is too long. Exit"
-				call EXIT()
-            end if	
-			if (AVAL(1:1) == "-") then
-			    print *, i, "key = ", len(AVAL(2:))
-			end if
-            i = i + 1			
-		end do
-	end subroutine get_arguments
 
 end program radet
