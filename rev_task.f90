@@ -1,6 +1,7 @@
 module reverse
 
-    use kernek_prep
+    use kernel_prep
+    use data
     
     implicit none
 

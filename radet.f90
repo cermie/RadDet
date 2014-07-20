@@ -2,7 +2,7 @@ program radet
 
     use kernel_prep
     use reverse
-	use crossections, only : VECTOR
+	use data, only : VECTOR
     use cla
 	
 	implicit none
@@ -11,7 +11,7 @@ program radet
 	real(8), dimension(:), allocatable :: XD, YD
     logical       :: rflag, oflag
 	character(len = 256) :: kername, savname
-	integer   :: typ, error, Nd
+	integer   :: typ, error, Nd, i
 	character :: C
 	
 	call cla_init

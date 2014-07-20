@@ -30,6 +30,7 @@ module kernel_prep
 !   where F(E1) - radiation spectrum, W(EP) - response function
 !
     use crossections
+    use data
 	
 	implicit none
 	
@@ -50,9 +51,9 @@ contains
 		integer, intent(out) :: error
 		
 		character(len = 256) :: filename_cs
-    	integer :: N1, Np, error, i, j
+    	integer :: N1, Np, i, j
 		real(8) :: E1min, E1max, Epmin, Epmax
-		open(11, file = filename, form = 'BINARY', action = 'READ', iostat = error)
+		open(11, file = filename, form = 'UNFORMATTED', action = 'READ', iostat = error)
 		if (typ .EQ. OLD_KERNEL) then
 			read(11) N1, Np, NAT
 			E1 % N = N1
@@ -60,9 +61,9 @@ contains
 			KERN % NX = Np
 			KERN % NY = N1
 			allocate(E1 % V(N1), EP % V(Np), KERN % V(Np, N1))
-			read(11) E1
-			read(11) EP
-			read(11) KERN
+			read(11) E1 % V
+			read(11) EP % V
+			read(11) KERN % V
 		else if (typ .EQ. NEW_KERNEL) then
 			read(11) N1, Np, E1min, E1max, Epmin, Epmax, NAT
 			read(11) filename_cs
@@ -89,7 +90,7 @@ contains
 	    character(len = *), optional, intent(in) :: filename_ker
 		
 		if (present(filename_ker)) then
-		    open(11, file = filename_ker, form = 'BINARY', action = 'WRITE')
+		    open(11, file = filename_ker, form = 'UNFORMATTED', action = 'WRITE')
 			write(11) E1 % N, EP % N, NAT
             write(11) E1 % V
             write(11) EP % V
@@ -102,6 +103,7 @@ contains
 	
 	function K(Ep, E1)
 	    real(8), intent(in) :: Ep, E1
+	    real(8) :: K
 			
 		integer :: i
 			
@@ -116,8 +118,9 @@ contains
 		real(8) :: f
 		
 		integer l
-		type (VECTOR) :: a = getac(r, E)
+		type (VECTOR) :: a 
 		
+		a = getac(r, E)		
 		do l = 1, a % N
 		    f = f + (2 * l - 1) / 2 * a%V(l) * legendre(l - 1, mu)
 		end do
@@ -127,10 +130,11 @@ contains
 	function mu(r, E1, Ep) ! cosine of scattering angle as function of incedent and deposited energies.
 	    integer, intent(in) :: r
 		real(8), intent(in) :: E1, Ep
+		real(8) :: mu
 		
-		real(8) :: znamm, s2, s3
+		real(8) :: znam, s2, s3
 		znam = sqrt(M2(r) * E1 * (M2(r) * E1 - QI(r) * (M1(r) + M2(r))))
-		s2 = (Ep(r) - QM(r) + QI(r)) / (2 * M1(r)) * (M1(r) + M2(r)) ** 2
+		s2 = (Ep - QM(r) + QI(r)) / (2 * M1(r)) * (M1(r) + M2(r)) ** 2
 		s3 = QI(r) * (M1(r) + M2(r)) / 2
 		mu = (M2(r) * E1 - s2 - s3) / znam
 	end function mu
@@ -138,8 +142,9 @@ contains
 	function dmu_dep(r, E1, Ep) ! d mu / d EP
 	    integer, intent(in) :: r
 		real(8), intent(in) :: E1, Ep
+		real(8) :: dmu_dep
 		
-		real(8) :: znamm, s2
+		real(8) :: znam, s2
 		znam = sqrt(M2(r) * E1 * (M2(r) * E1 - QI(r) * (M1(r) + M2(r))))
 		s2 = (M1(r) + M2(r)) ** 2 / (2 * M1(r))
 		dmu_dep = s2 / znam		
@@ -162,4 +167,4 @@ contains
 		end if
 	end function legendre
 
-end module kernel prep
+end module kernel_prep

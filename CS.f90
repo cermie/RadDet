@@ -14,20 +14,12 @@ module crossections
 	!                     which contains descriprion of files with crossection data
 	!                     error - error code: 0 - no error
 	! cs_destroy() - deallocates all dynamic crossection data. 
+    use data
+    
     implicit none 
 	
     private
-	public  :: cs_init, cs_destroy, getcs, getac, VECTOR, TABLE, NReact, QI, QM, M1, M2
-	
-	type VECTOR
-	    integer :: N   ! Length of V
-	    real(8), dimension(:), allocatable :: V
-	end type
-	
-	type TABLE
-	    integer :: NX, NY ! V dimensions
-	    real(8), dimension(:, :), allocatable :: V
-	end type
+	public  :: cs_init, cs_destroy, getcs, getac, NReact, QI, QM, M1, M2
 	
 	integer :: NReact ! reactions number
     type (VECTOR), dimension(:), allocatable :: CS, E, EA     ! E - array of reaction energies. EA - angular distribution energies
@@ -83,7 +75,7 @@ contains
 		integer :: N, i
 		
 		error = 0
-		open(12, file = filename, form = 'BINARY', action = 'READ')
+		open(12, file = filename, form = 'UNFORMATTED', action = 'READ')
 		read(12) N
 		E(react) % N = N
 		CS(react) % N = N
@@ -101,7 +93,7 @@ contains
 		integer :: NX, NY, i
 		
 		error = 0
-		open(12, file = filename, form = 'BINARY', action = 'READ')
+		open(12, file = filename, form = 'UNFORMATTED', action = 'READ')
 		read(12) NX, NY
 		EA(react) % N = NX
 		A(react) % NX = NX
@@ -116,7 +108,7 @@ contains
 	
 	    integer :: N, i
 		
-		if (.NOT. allocated(E%V)) then
+		if (.NOT. allocated(E)) then
 		    return
 		end if
 	    N = size(E)
