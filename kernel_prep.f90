@@ -4,10 +4,10 @@ module kernel_prep
 !
 ! S U B R O U T I N E S
 !
-!   kernel_init(typ, filename_ker, filename_cs) - initialize kernel. typ - kind of possible ways
+!   kernel_init(typ, filename) - initialize kernel. typ - kind of possible ways
 !              to initialize kernel. Possible values: integer NEW_KERNEL = 0 or OLD_KERNEL = 1.
 !              In the first case a new kernel is generated using crossection data from file filename_cs.
-!              File filename_ker contains initializing information like Np, N1, E1max, E1min, Epmax,
+!              File filename contains initializing information like Np, N1, E1max, E1min, Epmax,
 !              Epmin, NAT then. In the last case already generated kernel, stored in file folename_ker
 !              is used. In this case filename_cs parameter is not required.
 !
@@ -44,16 +44,17 @@ module kernel_prep
 	
 contains
 	
-    subroutine kernel_init(typ, filename_ker, filename_cs)
-	    character(len = *), intent(in) :: filename_ker
-		character(len = *), optional, intent(in) :: filename_cs
+    subroutine kernel_init(typ, filename)
+	    character(len = *), intent(in) :: filename
+		!character(len = *), optional, intent(in) :: filename_cs
 		integer, intent(in) :: typ
 		
+		character(len = 256) :: filename_cs
     	integer :: N1, Np, error, i, j
 		real(8) :: E1min, E1max, Epmin, Epmax
 		
 		if (typ .EQ. OLD_KERNEL) then
-		    open(11, file = filename_ker, form = 'UNFORMATTED', action = 'READ')
+		    open(11, file = filename, form = 'UNFORMATTED', action = 'READ')
 			read(11) N1, Np, NAT
 			E1 % N = N1
 			EP % N = Np
@@ -64,11 +65,12 @@ contains
 			read(11) EP
 			read(11) KERN
 			close(11)
-		else if (typ .EQ. NEW_KERNEL .AND. present(filename_cs)) then
-		    call cs_init(filename_cs, error)
-			open(11, file = filename_ker, form = 'UNFORMATTED', action = 'READ')
+		else if (typ .EQ. NEW_KERNEL) then
+			open(11, file = filename, form = 'UNFORMATTED', action = 'READ')
 			read(11) N1, Np, E1min, E1max, Epmin, Epmax, NAT
+			read(11) filename_cs
 			close(11)
+			call cs_init(filename_cs, error)
 			E1 % N = N1;    Ep % N = Np
     		KERN % NX = Np;	KERN % NY = N1
             allocate(E1 % V(N1), EP % V(Np), KERN % V(Np, N1))
