@@ -44,17 +44,16 @@ module kernel_prep
 	
 contains
 	
-    subroutine kernel_init(typ, filename)
+    subroutine kernel_init(typ, filename, error)
 	    character(len = *), intent(in) :: filename
-		!character(len = *), optional, intent(in) :: filename_cs
-		integer, intent(in) :: typ
+		integer, intent(in)  :: typ
+		integer, intent(out) :: error
 		
 		character(len = 256) :: filename_cs
     	integer :: N1, Np, error, i, j
 		real(8) :: E1min, E1max, Epmin, Epmax
-		
+		open(11, file = filename, form = 'BINARY', action = 'READ', iostat = error)
 		if (typ .EQ. OLD_KERNEL) then
-		    open(11, file = filename, form = 'UNFORMATTED', action = 'READ')
 			read(11) N1, Np, NAT
 			E1 % N = N1
 			EP % N = Np
@@ -64,12 +63,9 @@ contains
 			read(11) E1
 			read(11) EP
 			read(11) KERN
-			close(11)
 		else if (typ .EQ. NEW_KERNEL) then
-			open(11, file = filename, form = 'UNFORMATTED', action = 'READ')
 			read(11) N1, Np, E1min, E1max, Epmin, Epmax, NAT
 			read(11) filename_cs
-			close(11)
 			call cs_init(filename_cs, error)
 			E1 % N = N1;    Ep % N = Np
     		KERN % NX = Np;	KERN % NY = N1
@@ -86,13 +82,14 @@ contains
 					end do
 			end do
 		end if
+		close(11)
 	end subroutine kernel_init
 		
 	subroutine kernel_free(filename_ker)
 	    character(len = *), optional, intent(in) :: filename_ker
 		
 		if (present(filename_ker)) then
-		    open(11, file = filename_ker, form = 'UNFORMATTED', action = 'WRITE')
+		    open(11, file = filename_ker, form = 'BINARY', action = 'WRITE')
 			write(11) E1 % N, EP % N, NAT
             write(11) E1 % V
             write(11) EP % V

@@ -83,7 +83,7 @@ contains
 		integer :: N, i
 		
 		error = 0
-		open(12, file = filename, form = 'UNFORMATTED', action = 'READ')
+		open(12, file = filename, form = 'BINARY', action = 'READ')
 		read(12) N
 		E(react) % N = N
 		CS(react) % N = N
@@ -101,7 +101,7 @@ contains
 		integer :: NX, NY, i
 		
 		error = 0
-		open(12, file = filename, form = 'UNFORMATTED', action = 'READ')
+		open(12, file = filename, form = 'BINARY', action = 'READ')
 		read(12) NX, NY
 		EA(react) % N = NX
 		A(react) % NX = NX
