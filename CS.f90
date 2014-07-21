@@ -19,7 +19,7 @@ module crossections
     implicit none 
 	
     private
-	public  :: cs_init, cs_destroy, getcs, getac, NReact, QI, QM, M1, M2
+	public  :: cs_init, cs_free, getcs, getac, NReact, QI, QM, M1, M2
 	
 	integer :: NReact ! reactions number
     type (VECTOR), dimension(:), allocatable :: CS, E, EA     ! E - array of reaction energies. EA - angular distribution energies
@@ -104,7 +104,7 @@ contains
 		close(12)
 	end subroutine read_ang
 	
-	subroutine cs_destroy()
+	subroutine cs_free()
 	
 	    integer :: N, i
 		
@@ -117,7 +117,7 @@ contains
 	    end do
 	    deallocate(E, CS, QI, QM, M1, M2, A, EA)
 	    
-	end subroutine
+	end subroutine cs_free
 	    
     function getcs(cskind, energy)  ! linear interpolation used here
 	    integer(4), intent(in) :: cskind   ! If energy lies outside avaible crossection data range 0.0 value is returned
@@ -127,7 +127,7 @@ contains
 		integer :: i
 		
 		i = search(E(cskind) % V, energy)
-		if (i .EQ. 0) then
+		if (i == 0) then
 		    getcs = 0.0
 		else
 		    getcs = CS(cskind) % V(i) + (CS(cskind) % V(i + 1) - &
@@ -147,7 +147,7 @@ contains
 	    
 	    i = search(EA(cskind) % V, energy)
 	    
-	    if (i .EQ. 0) then
+	    if (i == 0) then
 	        getac % N = 1
 	    else
 	        getac % N = A(cskind) % NY + 1
@@ -163,30 +163,4 @@ contains
 	    
 	end function getac
 		
-	! search the max index in array X so X(i)<=V
-	! return 0 if V<X(1) or V>=X(N), where N - length of X
-	function search(X, V)
-	    real(8), dimension(:), intent(in) :: X
-		real(8), intent(in) :: V
-		integer(4) :: search
-		
-		integer(4) :: imin, imax, imid, N
-		N = size(X)
-		if (V .LT. X(1) .OR. V .GE. X(N)) then
-		    search = 0
-		else
-		    imin = 1
-			imax = N
-			do while (imax - imin .GT. 1)
-			    imid = (imin + imax) / 2
-				if (X(imid) .LE. V) then
-				    imin = imid
-    			else
-				    imax = imid
-				end if
-			end do
-			search = imin
-		end if
-		
-	end function search
 end module

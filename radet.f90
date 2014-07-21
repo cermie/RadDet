@@ -7,7 +7,21 @@ program radet
 	
 	implicit none
 	
-	type (VECTOR) :: F, W
+	interface 
+	    subroutine spline_cubic_set(n, t, y, ibcbeg, ybcbeg, ibcend, ybcend, ypp)
+		    integer(4), intent(in) :: n, ibcbeg, ibcend
+			real(8), intent(in) :: t(n), y(n), ybcbeg, ybcend
+			real(8), intent(out) :: ypp(n)
+		end subroutine spline_cubic_set
+		
+		subroutine spline_cubic_val(n, t, y, ypp, tval, yval, ypval, yppval)
+		    integer(4), intent(in) :: n
+			real(8), intent(in) :: t(n), y(n), ypp(n), tval
+			real(8), intent(out) :: yval, ypval, yppval
+		end subroutine spline_cubic_val
+	end interface
+	
+	real(8), dimension(:), allocatable :: F, W, EF, EW
 	real(8), dimension(:), allocatable :: XD, YD
     logical       :: rflag, oflag
 	character(len = 256) :: kername, savname
@@ -44,13 +58,11 @@ program radet
 	    stop 'Program terminated'
 	end if
 		
-	F % N = E1 % N
-	W % N = EP % N
-	allocate(F % V(F % N), W % V(W % N))
+	allocate(F(N1), W(NP), EF(N1), EW(NP))
 	
+	read(*, *) Nd
+	allocate(XD(Nd), YD(Nd))
 	if (.NOT. rflag) then
-	    read(*, *) Nd
-	    allocate(XD(Nd), YD(Nd))
 	    do 
 	        read(*, *) C
 	        if (C == 'E') then
@@ -60,17 +72,16 @@ program radet
 	            read(*, *) XD(i), YD(i)
 	        end do
 	        
-	        call interpl(XD, YD, E1 % V, F % V)
+	        call interpl(XD, YD, E1, F)
 	        call direct_task(F, W)
 	        
-	        write(*, *) EP % N
-	        do i = 1, EP % N
-	            write(*, *) EP % V(i), W % V(i)
+			write(*, *) 'O'
+	        write(*, *) NP
+	        do i = 1, NP
+	            write(*, *) EP(i), W(i)
 	        end do
 	    end do
 	else
-        read(*, *) Nd
-        allocate(XD(Nd), YD(Nd))
         do 
             read(*, *) C
             if (C == 'E') then
@@ -80,12 +91,13 @@ program radet
                 read(*, *) XD(i), YD(i)
             end do
 
-            call interpl(XD, YD, EP % V, W % V)
+            call interpl(XD, YD, EP, W)
             call reverse_task(W, F)
 
-            write(*, *) E1 % N
-            do i = 1, E1 % N
-                write(*, *) E1 % V(i), F % V(i)
+			write(*, *) 'O'
+            write(*, *) N1
+            do i = 1, N1
+                write(*, *) E1(i), F(i)
             end do
         end do	
 	end if
@@ -97,13 +109,26 @@ program radet
         call kernel_free()
     end if
     
-    deallocate(XD, YD, F % V, W % V)
+    deallocate(XD, YD, F, W, EF, EW)
 
 contains
 
     subroutine interpl(XD, YD, XI, YI)
         real(8), dimension(:), intent(in)  :: XD, YD, XI
         real(8), dimension(:), intent(out) :: YI
+		
+		integer, parameter :: ND = size(XD), NI = size(XI)
+		real(8) :: YDPP(ND), YIP, YIPP
+		integer :: i
+		
+		call spline_cubic_set(ND, XD, YD, 2, 0, 2, 0, YDPP)
+		do i = 1, NI
+		    call spline_cubic_val(ND, XD, YD, YDPP, XI(i), YI(i), YIP, YIPP)
+			if (XI(i) < XD(1) .OR. XI(i) > XD(ND) .OR. YI(i) < 0.0) then
+			    YI(i) = 0.0
+			end if
+		end do
+		
     end subroutine interpl
 
 end program radet

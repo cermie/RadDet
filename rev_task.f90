@@ -1,6 +1,5 @@
 module reverse
 
-    use kernel_prep
     use data
     
     implicit none
@@ -8,24 +7,41 @@ module reverse
 contains
 
     subroutine direct_task(F, W)
-        type (VECTOR), intent(in)  :: F
-        type (VECTOR), intent(out) :: W
+        real(8), dimension(:), intent(in)  :: F
+        real(8), dimension(:), intent(out) :: W
         
         integer :: i, j
         real(8) :: s
-        do i = 1, EP % N
+        do i = 1, NP
             s = 0.0
-            do j = 1, E1 % N
-                s = s + KERN % V(i, j) * F % V(j)
+            do j = 1, N1
+                s = s + KERN(i, j) * F(j)
             end do
-            W % V(i) = s
+            W(i) = s
         end do
     end subroutine direct_task
     
-    subroutine reverse_task(W, F)
-        type (VECTOR), intent(in)  :: W
-        type (VECTOR), intent(out) :: F
+    subroutine reverse_task(W, EW, F, EF)
+        real(8), dimension(:), intent(in)  :: W, EW
+        real(8), dimension(:), intent(out) :: F, EF
         
+		real(8), dimension(:) :: wgt(NP)
+				
+		call init_weights(W, EW, wgt)
+		
     end subroutine reverse_task
+	
+	subroutine init_weights(W, EW, wgt)
+	    real(8), dimension(:), intent(in)  :: W, EW
+		real(8), dimension(:), intent(out) :: wgt
+		
+	end subroutine init_weights
+	
+	subroutine stat_error_estim(W, EW)
+	    real(8), dimension(:), intent(in)  :: W
+		real(8), dimension(:), intent(out) :: EW
+		
+		
+	end subroutine stat_eror_estim
 
 end module reverse
