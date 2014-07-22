@@ -29,19 +29,33 @@ contains
 				
 		call init_weights(W, EW, wgt)
 		
+		
     end subroutine reverse_task
 	
 	subroutine init_weights(W, EW, wgt)
 	    real(8), dimension(:), intent(in)  :: W, EW
 		real(8), dimension(:), intent(out) :: wgt
 		
+		integer :: i
+		
+		do i = 1, NP
+		    wgt(i) = 1.0d+00
+		end do
 	end subroutine init_weights
 	
-	subroutine stat_error_estim(W, EW)
-	    real(8), dimension(:), intent(in)  :: W
-		real(8), dimension(:), intent(out) :: EW
+	subroutine descent_gradient_min(W, F, a, wgt, max_iter, prec)
+	    real(8), dimension(:), intent(in) :: W, wgt
+		real(8), dimension(:), intent(inout) :: F
+		real(8), intent(in) :: a, prec
+		integer, intent(in) :: max_iter
 		
+		integer :: itr = 0
+		real(8) :: G(N1), L(NP), ch, zn, gamma1, cp = 1.d+99
 		
-	end subroutine stat_eror_estim
+		do while (itr <= max_iter .AND. cp >= prec)
+		    
+		    itr = itr + 1
+		end do
+	end subroutine descent_gradient_min
 
 end module reverse
