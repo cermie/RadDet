@@ -28,6 +28,9 @@ program radet
 	integer   :: typ, error, Nd, i
 	character :: C
 	
+!---------------------------------------------------------------------------
+!-------command line options------------------------------------------------
+	
 	call cla_init
 	call cla_register(key = '-r', description = 'radiation spectrum reconstruction', &
 	     kkind = cla_flag, default = 'f')
@@ -52,6 +55,7 @@ program radet
 	    print *, 'Warning: -i parameter is absent. Default: kernel.ker'
 	end if
 	call cla_get('-i', kername)
+!---------------------------------------------------------------------------
 	call kernel_init(typ, kername, error)
 	if (error /= 0) then
 	    print *, 'File error. Termination'
@@ -92,7 +96,7 @@ program radet
             end do
 
             call interpl(XD, YD, EP, W)
-            call reverse_task(W, F)
+            call reverse_task(W, EW, F, EF)
 
 			write(*, *) 'O'
             write(*, *) N1
@@ -117,11 +121,14 @@ contains
         real(8), dimension(:), intent(in)  :: XD, YD, XI
         real(8), dimension(:), intent(out) :: YI
 		
-		integer, parameter :: ND = size(XD), NI = size(XI)
-		real(8) :: YDPP(ND), YIP, YIPP
+		integer :: ND, NI
+		real(8), dimension(size(XD)) :: YDPP
+		real(8) :: YIP, YIPP
 		integer :: i
 		
-		call spline_cubic_set(ND, XD, YD, 2, 0, 2, 0, YDPP)
+		ND = size(XD)
+		NI = size(XI)
+		call spline_cubic_set(ND, XD, YD, 2, 0.0d+00, 2, 0.0d+00, YDPP)
 		do i = 1, NI
 		    call spline_cubic_val(ND, XD, YD, YDPP, XI(i), YI(i), YIP, YIPP)
 			if (XI(i) < XD(1) .OR. XI(i) > XD(ND) .OR. YI(i) < 0.0) then

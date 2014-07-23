@@ -49,7 +49,7 @@ contains
 			read(11) N1, NP, E1min, E1max, Epmin, Epmax, NAT
 			read(11) filename_cs
 			call cs_init(filename_cs, error)
-			allocate(E1 % V(N1), EP % V(Np), KERN % V(Np, N1))
+			allocate(E1(N1), EP(NP), KERN(NP, N1))
 			dE1 = (E1max - E1min) / N1
 			dEP = (Epmax - Epmin) / NP
 			do i = 1, N1

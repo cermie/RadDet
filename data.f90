@@ -30,33 +30,4 @@ module data
 	real(8) :: dE1, dEP, NAT
 	integer :: N1, NP
 	
-contains
-
-	! search the max index in array X so X(i)<=V
-	! return 0 if V<X(1) or V>=X(N), where N - length of X
-	function search(X, V)
-	    real(8), dimension(:), intent(in) :: X
-		real(8), intent(in) :: V
-		integer(4) :: search
-		
-		integer(4) :: imin, imax, imid, N
-		N = size(X)
-		if (V < X(1) .OR. V >= X(N)) then
-		    search = 0
-		else
-		    imin = 1
-			imax = N
-			do while (imax - imin > 1)
-			    imid = (imin + imax) / 2
-				if (X(imid) <= V) then
-				    imin = imid
-    			else
-				    imax = imid
-				end if
-			end do
-			search = imin
-		end if
-		
-	end function search
-	
 end module data

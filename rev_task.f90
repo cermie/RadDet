@@ -42,6 +42,6 @@ contains
 		real(8), dimension(:), intent(out) :: EW
 		
 		
-	end subroutine stat_eror_estim
+	end subroutine stat_error_estim
 
 end module reverse
