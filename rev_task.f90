@@ -37,8 +37,10 @@ contains
 		real(8), dimension(:), intent(out) :: wgt
 		
 		integer :: i
+		real(8) :: pw[NP]
 		
 		do i = 1, NP
+		    pw(i) = 1 / W(i)
 		    wgt(i) = 1.0d+00
 		end do
 	end subroutine init_weights
